@@ -1,0 +1,53 @@
+
+`timescale 1ns / 1ps
+
+module seq_detector_tb;
+
+    reg P1, clk, reset;
+    wire z;
+
+    // Instantiate Unit Under Test
+    seq_detector uut (
+        .P1(P1),
+        .clk(clk),
+        .reset(reset),
+        .z(z)
+    );
+
+    // Clock: 10 ns period
+    initial begin
+        clk = 0;
+        forever #5 clk = ~clk;
+    end
+
+    // Input sequence
+    initial begin
+        P1 = 0;
+        reset = 1;
+
+        #12 reset = 0;
+
+        // Test 1: Detect 1100
+        #10 P1 = 1;
+        #10 P1 = 1;
+        #10 P1 = 0;
+        #10 P1 = 0;  // z should become 1
+
+        // Test 2: Incorrect sequence 1010
+        #10 P1 = 1;
+        #10 P1 = 0;
+        #10 P1 = 1;
+        #10 P1 = 0;
+
+        // Test 3: Detect 1100 again
+        #10 P1 = 1;
+        #10 P1 = 1;
+        #10 P1 = 0;
+        #10 P1 = 0;  // z should become 1
+
+        #20 $finish;
+    end
+
+endmodule
+
+
