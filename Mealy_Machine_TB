@@ -1,0 +1,60 @@
+
+`timescale 1ns / 1ps
+
+module seq_detector_mealy_tb;
+
+    reg P1, clk, reset;
+    wire z;
+
+    // Instantiate Unit Under Test
+    seq_detector_mealy uut (
+        .P1(P1),
+        .clk(clk),
+        .reset(reset),
+        .z(z)
+    );
+
+    // Clock: 10 ns period
+    initial begin
+        clk = 0;
+        forever #5 clk = ~clk;
+    end
+
+    // Input sequences
+    initial begin
+        P1 = 0;
+        reset = 1;
+
+        #12 reset = 0;
+
+        // Test 1: Detect 1101
+        #10 P1 = 1;
+        #10 P1 = 1;
+        #10 P1 = 0;
+        #10 P1 = 1;  // z should become 1
+
+        // Test 2: Incorrect sequence 1010
+        #10 P1 = 1;
+        #10 P1 = 0;
+        #10 P1 = 1;
+        #10 P1 = 0;
+
+        // Reset before testing overlap
+        #10 reset = 1;
+        #10 reset = 0;
+
+        // Test 3: Overlapping sequence 1101101
+        #10 P1 = 1;
+        #10 P1 = 1;
+        #10 P1 = 0;
+        #10 P1 = 1;  // First detection
+        #10 P1 = 1;
+        #10 P1 = 0;
+        #10 P1 = 1;  // Second detection
+
+        #20 $finish;
+    end
+
+endmodule
+
+
