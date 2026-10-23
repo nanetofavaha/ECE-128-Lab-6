@@ -1,0 +1,53 @@
+`timescale 1ns / 1ps
+
+module debouncingtb;
+
+    reg RAW, CLK;
+    wire CLEAN;
+
+    // Instantiate Unit Under Test
+    debouncing uut (
+        .RAW(RAW),
+        .CLK(CLK),
+        .CLEAN(CLEAN)
+    );
+
+    // Clock: 100 MHz (10 ns period)
+    initial begin
+        CLK = 0;
+        forever #5 CLK = ~CLK;
+    end
+
+    // Test button bouncing
+    initial begin
+        RAW = 0;
+
+        // Initialize
+        #20;
+
+        // Test 1: Simulate button bouncing
+        RAW = 1;
+        #10 RAW = 0;
+        #10 RAW = 1;
+        #10 RAW = 0;
+        #10 RAW = 1;
+        #10 RAW = 0;
+
+        // Test 2: Sustained button press
+        #20 RAW = 1;
+        #120 RAW = 0;
+
+        // Test 3: Another short press
+        #20 RAW = 1;
+        #30 RAW = 0;
+
+        // Test 4: Second sustained press
+        #20 RAW = 1;
+        #120 RAW = 0;
+
+        #20 $finish;
+    end
+
+endmodule
+
+
